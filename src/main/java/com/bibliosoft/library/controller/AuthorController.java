@@ -23,6 +23,7 @@ public class AuthorController {
         this.authorService = authorService;
     }
 
+    // Endpoint to get all authors
     @GetMapping
     public List<AuthorDTO> getAll() {
         return authorService.getAll();
