@@ -1,5 +1,6 @@
 package com.bibliosoft.library.dto;
 
+// this is a DTO class
 public class BookDTO {
     private Long id;
     private String title;
