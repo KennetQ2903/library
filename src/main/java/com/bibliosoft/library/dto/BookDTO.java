@@ -1,11 +1,49 @@
 package com.bibliosoft.library.dto;
 
-// this is a DTO class
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+
+/**
+ * DTO que representa un libro en el sistema de biblioteca.
+ */
+@Schema(description = "Objeto de transferencia de datos que representa la información de un libro.")
 public class BookDTO {
+    @Schema(
+        description = "Identificador único del libro.",
+        example = "101",
+        accessMode = Schema.AccessMode.READ_WRITE
+    )
+    @NotBlank(message = "El id es unico y no puede estar vacío.")
     private Long id;
+
+    @Schema(
+        description = "Título completo del libro.",
+        example = "Cien Años de Soledad",
+        required = true
+    )
+    @NotBlank(message = "El título no debe estar vacío.")
     private String title;
+
+    @Schema(
+        description = "Identificador único del autor del libro. Hace referencia a un AuthorDTO.",
+        example = "5",
+        required = true
+    )
+    @NotBlank(message = "El autor no debe estar vacío.")
     private Long authorId;
+
+    @Schema(
+        description = "Identificador del usuario que ha tomado prestado el libro, si aplica. Hace referencia a un UserDTO.",
+        example = "20",
+        nullable = true
+    )
     private Long borrowedByUserId;
+
+    @Schema(
+        description = "Indica si el libro está actualmente prestado.",
+        example = "true",
+        defaultValue = "false"
+    )
     private boolean borrowed;
 
     public BookDTO() {
