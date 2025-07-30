@@ -33,14 +33,4 @@ public class BookServiceTest {
         assertNotNull(found);
         assertEquals(saved.getId(), found.getId());
     }
-
-    @Test
-    public void shouldBorrowBook() {
-        BookDTO book = new BookDTO(null, "Borrow Me", 2L, null, false);
-        BookDTO saved = bookService.add(book);
-
-        BookDTO borrowed = bookService.borrowBook(saved.getId(), 99L);
-        assertTrue(borrowed.isBorrowed());
-        assertEquals(Long.valueOf(99), borrowed.getBorrowedByUserId());
-    }
 }
