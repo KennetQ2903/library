@@ -20,7 +20,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.bibliosoft.library.dto.BookDTO;
 import com.bibliosoft.library.service.BookService;
 
-// https://www.baeldung.com/spring-test-mockmvc
 @RunWith(SpringRunner.class)
 @WebMvcTest(BookController.class)
 @Import(BookService.class)  // En lugar de @MockBean

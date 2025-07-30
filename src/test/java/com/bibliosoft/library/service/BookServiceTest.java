@@ -6,7 +6,6 @@ import com.bibliosoft.library.dto.BookDTO;
 
 
 import static org.junit.Assert.*;
-// https://www.baeldung.com/junit-assert
 
 public class BookServiceTest {
     private BookService bookService;
@@ -44,8 +43,4 @@ public class BookServiceTest {
         assertTrue(borrowed.isBorrowed());
         assertEquals(Long.valueOf(99), borrowed.getBorrowedByUserId());
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 76865a8aefd14b6f88319d7a9ced62b52069fa6a
