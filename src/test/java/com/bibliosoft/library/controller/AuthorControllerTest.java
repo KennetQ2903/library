@@ -1,0 +1,45 @@
+package com.bibliosoft.library.controller;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.Arrays;
+import java.util.List;
+
+import com.bibliosoft.library.dto.AuthorDTO;
+import com.bibliosoft.library.service.AuthorService;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+
+@RunWith(SpringRunner.class)
+@WebMvcTest(AuthorController.class)
+public class AuthorControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private AuthorService authorService;
+
+    @Test
+    public void shouldReturnListOfAuthors() throws Exception {
+        List<AuthorDTO> authors = Arrays.asList(
+            new AuthorDTO(1L, "Gabriel García Márquez"),
+            new AuthorDTO(2L, "Isabel Allende")
+        );
+
+        Mockito.when(authorService.getAll()).thenReturn(authors);
+
+        mockMvc.perform(get("/api/authors"))
+               .andExpect(status().isOk())
+               .andExpect(jsonPath("$.length()").value(2))
+               .andExpect(jsonPath("$[0].name").value("Gabriel García Márquez"));
+    }
+}
