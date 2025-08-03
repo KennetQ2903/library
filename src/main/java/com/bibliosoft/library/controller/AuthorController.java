@@ -50,8 +50,8 @@ public class AuthorController {
     @Operation(summary = "Obtiene todos los autores registrados.")
     @ApiResponse(responseCode = "200", description = "Lista obtenida correctamente.")
     @GetMapping
-    public List<AuthorDTO> getAll() {
-        return authorService.getAll();
+    public ResponseEntity<List<AuthorDTO>> getAll() {
+        return ResponseEntity.ok(authorService.getAll());
     }
 
     /**

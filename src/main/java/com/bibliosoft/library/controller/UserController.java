@@ -41,8 +41,8 @@ public class UserController {
     @Operation(summary = "Obtiene la lista de todos los usuarios.")
     @ApiResponse(responseCode = "200", description = "Usuarios obtenidos exitosamente.")
     @GetMapping
-    public List<UserDTO> getAll() {
-        return userService.getAll();
+    public ResponseEntity<List<UserDTO>> getAll() {
+        return ResponseEntity.ok(userService.getAll());
     }
 
     /**
