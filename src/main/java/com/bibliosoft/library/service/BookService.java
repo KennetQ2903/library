@@ -1,47 +1,47 @@
 package com.bibliosoft.library.service;
 
-import com.bibliosoft.library.dto.BookDTO;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import com.bibliosoft.library.entity.BookEntity;
+import com.bibliosoft.library.entity.UserEntity;
+import com.bibliosoft.library.repository.BookRepository;
+import com.bibliosoft.library.repository.UserRepository;
 
 /**
- * Servicio que gestiona las operaciones de negocio relacionadas con los libros.
- * Utiliza un almacenamiento en memoria simulado con un Map.
+ * Servicio que gestiona las operaciones de negocio relacionadas con los libros,
+ * ahora usando JPA y H2 como almacenamiento persistente.
  */
 @Service
 public class BookService {
 
-    /**
-     * Almacenamiento en memoria de libros. 
-     * Clave: ID del libro, Valor: DTO del libro.
-     */
-    private final Map<Long, BookDTO> bookRepository = new HashMap<>();
+    @Autowired
+    private BookRepository bookRepository;
 
-    /**
-     * Contador de secuencia para asignar IDs únicos a los libros.
-     */
-    private Long idSequence = 1L;
+    @Autowired
+    private UserRepository userRepository;
 
     /**
      * Retorna todos los libros disponibles en el sistema.
      *
-     * @return Lista de BookDTO.
+     * @return Lista de libros.
      */
-    public List<BookDTO> getAll() {
-        return new ArrayList<>(bookRepository.values());
+    public List<BookEntity> getAll() {
+        return bookRepository.findAll();
     }
 
     /**
      * Registra un nuevo libro, asignándole un ID automáticamente.
      *
-     * @param book DTO con los datos del libro.
-     * @return DTO del libro creado, incluyendo el ID.
+     * @param book DTO del libro a crear.
+     * @return Libro creado con ID asignado.
      */
-    public BookDTO add(BookDTO book) {
-        book.setId(idSequence++);
-        bookRepository.put(book.getId(), book);
-        return book;
+    public BookEntity add(BookEntity book) {
+       return bookRepository.save(book);
     }
 
     /**
@@ -50,8 +50,8 @@ public class BookService {
      * @param id ID del libro.
      * @return Optional con el libro encontrado, o vacío si no existe.
      */
-    public Optional<BookDTO> getById(Long id) {
-        return Optional.ofNullable(bookRepository.get(id));
+    public Optional<BookEntity> getById(Long id) {
+        return bookRepository.findById(id);
     }
 
     /**
@@ -61,31 +61,36 @@ public class BookService {
      * @return true si el libro existía y fue eliminado, false si no existía.
      */
     public boolean delete(Long id) {
-        return bookRepository.remove(id) != null;
+        if (bookRepository.existsById(id)) {
+            bookRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 
     /**
-     * Marca un libro como prestado por un usuario, si está disponible.
+     * Marca un libro como prestado a un usuario si está disponible.
      *
-     * @param bookId ID del libro a prestar.
-     * @param userId ID del usuario que lo solicita.
-     * @return DTO actualizado del libro prestado.
-     * @throws NoSuchElementException si el libro no existe.
-     * @throws IllegalStateException si el libro ya está prestado.
+     * @param bookId ID del libro
+     * @param userId ID del usuario que solicita el préstamo
+     * @return Libro actualizado
+     * @throws NoSuchElementException si el libro o el usuario no existen
+     * @throws IllegalStateException si el libro ya está prestado
      */
-    public BookDTO borrowBook(Long bookId, Long userId) {
-        BookDTO book = bookRepository.get(bookId);
-
-        if (book == null) {
-            throw new NoSuchElementException("Libro no encontrado con ID: " + bookId);
-        }
+    public BookEntity borrowBook(Long bookId, Long userId) {
+        BookEntity book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new NoSuchElementException("Book not found with ID: " + bookId));
 
         if (book.isBorrowed()) {
-            throw new IllegalStateException("El libro ya está prestado.");
+            throw new IllegalStateException("Book is already borrowed.");
         }
 
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("User not found with ID: " + userId));
+
         book.setBorrowed(true);
-        book.setBorrowedByUserId(userId);
-        return book;
+        book.setBorrowedBy(user);
+
+        return bookRepository.save(book);
     }
 }
