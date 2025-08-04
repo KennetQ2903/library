@@ -7,8 +7,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Arrays;
 import java.util.List;
 
-import com.bibliosoft.library.dto.AuthorDTO;
-import com.bibliosoft.library.service.AuthorService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -17,6 +15,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+
+import com.bibliosoft.library.entity.AuthorEntity;
+import com.bibliosoft.library.service.AuthorService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(AuthorController.class)
@@ -30,9 +31,9 @@ public class AuthorControllerTest {
 
     @Test
     public void shouldReturnListOfAuthors() throws Exception {
-        List<AuthorDTO> authors = Arrays.asList(
-            new AuthorDTO(1L, "Gabriel García Márquez"),
-            new AuthorDTO(2L, "Isabel Allende")
+        List<AuthorEntity> authors = Arrays.asList(
+            new AuthorEntity(1L, "Gabriel García Márquez", null),
+            new AuthorEntity(2L, "Isabel Allende", null)
         );
 
         Mockito.when(authorService.getAll()).thenReturn(authors);

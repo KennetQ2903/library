@@ -17,7 +17,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.bibliosoft.library.dto.BookDTO;
+import com.bibliosoft.library.entity.AuthorEntity;
+import com.bibliosoft.library.entity.BookEntity;
 import com.bibliosoft.library.service.BookService;
 
 @RunWith(SpringRunner.class)
@@ -25,24 +26,28 @@ import com.bibliosoft.library.service.BookService;
 @Import(BookService.class)  // En lugar de @MockBean
 public class BookControllerTest {
 
-    @Autowired
+   @Autowired
     private MockMvc mockMvc;
 
-    @SuppressWarnings("removal")
     @MockBean
     private BookService bookService;
 
     @Test
     public void shouldReturnListOfBooks() throws Exception {
-        List<BookDTO> books = Arrays.asList(
-            new BookDTO(1L, "Book One", 1L, null, false),
-            new BookDTO(2L, "Book Two", 2L, null, false)
+        AuthorEntity author1 = new AuthorEntity(1L, "Author One", null);
+        AuthorEntity author2 = new AuthorEntity(2L, "Author Two", null);
+
+        List<BookEntity> books = Arrays.asList(
+            new BookEntity(1L, "Book One", author1, null, false),
+            new BookEntity(2L, "Book Two", author2, null, false)
         );
 
         Mockito.when(bookService.getAll()).thenReturn(books);
 
         mockMvc.perform(get("/api/books"))
                .andExpect(status().isOk())
-               .andExpect(jsonPath("$.length()").value(2));
+               .andExpect(jsonPath("$.length()").value(2))
+               .andExpect(jsonPath("$[0].title").value("Book One"))
+               .andExpect(jsonPath("$[1].title").value("Book Two"));
     }
 }

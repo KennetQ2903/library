@@ -7,8 +7,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Arrays;
 import java.util.List;
 
-import com.bibliosoft.library.dto.UserDTO;
-import com.bibliosoft.library.service.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -17,6 +15,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+
+import com.bibliosoft.library.entity.UserEntity;
+import com.bibliosoft.library.service.UserService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(UserController.class)
@@ -30,9 +31,9 @@ public class UserControllerTest {
 
     @Test
     public void shouldReturnListOfUsers() throws Exception {
-        List<UserDTO> users = Arrays.asList(
-            new UserDTO(1L, "Juan Pérez"),
-            new UserDTO(2L, "Ana Gómez")
+        List<UserEntity> users = Arrays.asList(
+            new UserEntity(1L, "Juan Pérez", null),
+            new UserEntity(2L, "Ana Gómez", null)
         );
 
         Mockito.when(userService.getAll()).thenReturn(users);
