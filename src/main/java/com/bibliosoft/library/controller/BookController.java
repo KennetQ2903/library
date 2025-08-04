@@ -1,19 +1,28 @@
 package com.bibliosoft.library.controller;
 
-import com.bibliosoft.library.dto.BookDTO;
+import java.util.List;
+import java.util.NoSuchElementException;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.bibliosoft.library.entity.BookEntity;
 import com.bibliosoft.library.service.BookService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
-import java.util.NoSuchElementException;
 
 /**
  * Controlador REST para gestionar operaciones sobre libros en el sistema.
@@ -36,12 +45,12 @@ public class BookController {
     /**
      * Obtiene todos los libros registrados en el sistema.
      *
-     * @return Lista de BookDTO.
+     * @return Lista de libros.
      */
     @Operation(summary = "Obtiene la lista completa de libros.")
     @ApiResponse(responseCode = "200", description = "Lista de libros obtenida exitosamente.")
     @GetMapping
-    public ResponseEntity<List<BookDTO>> getAll() {
+    public ResponseEntity<List<BookEntity>> getAll() {
         return ResponseEntity.ok(bookService.getAll());
     }
 
@@ -57,8 +66,8 @@ public class BookController {
         @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos.")
     })
     @PostMapping
-    public ResponseEntity<BookDTO> add(@RequestBody @Valid BookDTO book) {
-        BookDTO saved = bookService.add(book);
+    public ResponseEntity<BookEntity> add(@RequestBody @Valid BookEntity book) {
+        BookEntity saved = bookService.add(book);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
@@ -74,8 +83,9 @@ public class BookController {
         @ApiResponse(responseCode = "404", description = "Libro no encontrado.")
     })
     @GetMapping("/{id}")
-    public BookDTO getById(@PathVariable @Min(1) Long id) {
+    public ResponseEntity<BookEntity> getById(@PathVariable @Min(1) Long id) {
         return bookService.getById(id)
+            .map(ResponseEntity::ok)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Libro no encontrado"));
     }
 
@@ -91,9 +101,11 @@ public class BookController {
     })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable @Min(1) Long id) {
+    public ResponseEntity<Void> delete(@PathVariable @Min(1) Long id) {
         boolean deleted = bookService.delete(id);
-        if (!deleted) {
+        if (deleted) {
+            return ResponseEntity.noContent().build(); // 204 No Content
+        } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo eliminar el libro");
         }
     }
@@ -112,12 +124,13 @@ public class BookController {
         @ApiResponse(responseCode = "409", description = "El libro ya está prestado.")
     })
     @PostMapping("/{bookId}/borrow/{userId}")
-    public BookDTO borrowBook(
+    public ResponseEntity<BookEntity> borrowBook(
         @PathVariable @Min(1) Long bookId,
         @PathVariable @Min(1) Long userId
     ) {
         try {
-            return bookService.borrowBook(bookId, userId);
+            BookEntity updatedBook = bookService.borrowBook(bookId, userId);
+            return ResponseEntity.ok(updatedBook);
         } catch (IllegalStateException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
         } catch (NoSuchElementException e) {

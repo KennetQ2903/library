@@ -1,18 +1,27 @@
 package com.bibliosoft.library.controller;
 
-import com.bibliosoft.library.dto.UserDTO;
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import com.bibliosoft.library.entity.UserEntity;
 import com.bibliosoft.library.service.UserService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
 
 /**
  * Controlador REST que expone operaciones CRUD para usuarios.
@@ -41,7 +50,7 @@ public class UserController {
     @Operation(summary = "Obtiene la lista de todos los usuarios.")
     @ApiResponse(responseCode = "200", description = "Usuarios obtenidos exitosamente.")
     @GetMapping
-    public ResponseEntity<List<UserDTO>> getAll() {
+    public ResponseEntity<List<UserEntity>> getAll() {
         return ResponseEntity.ok(userService.getAll());
     }
 
@@ -57,8 +66,8 @@ public class UserController {
         @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos.")
     })
     @PostMapping
-    public ResponseEntity<UserDTO> add(@RequestBody @Valid UserDTO user) {
-        UserDTO saved = userService.add(user);
+    public ResponseEntity<UserEntity> add(@RequestBody @Valid UserEntity user) {
+        UserEntity saved = userService.add(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
@@ -74,9 +83,10 @@ public class UserController {
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado.")
     })
     @GetMapping("/{id}")
-    public UserDTO getById(@PathVariable @Min(1) Long id) {
+    public ResponseEntity<UserEntity> getById(@PathVariable @Min(1) Long id) {
         return userService.getById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+        .map(ResponseEntity::ok)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
     }
 
     /**
@@ -91,9 +101,11 @@ public class UserController {
     })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable @Min(1) Long id) {
+    public ResponseEntity<Void> delete(@PathVariable @Min(1) Long id) {
         boolean deleted = userService.delete(id);
-        if (!deleted) {
+        if (deleted) {
+            return ResponseEntity.noContent().build(); // 204 No Content
+        } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo eliminar el usuario");
         }
     }
