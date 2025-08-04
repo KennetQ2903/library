@@ -41,8 +41,8 @@ public class BookController {
     @Operation(summary = "Obtiene la lista completa de libros.")
     @ApiResponse(responseCode = "200", description = "Lista de libros obtenida exitosamente.")
     @GetMapping
-    public List<BookDTO> getAll() {
-        return bookService.getAll();
+    public ResponseEntity<List<BookDTO>> getAll() {
+        return ResponseEntity.ok(bookService.getAll());
     }
 
     /**
