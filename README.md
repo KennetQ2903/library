@@ -105,6 +105,6 @@ Una vez corriendo, accede a:
 
 Proyecto desarrollado por:
 - **Kennet Quiróz**
-- **Lisbeth García**
+- **Lisbeth Hernandez**
 - **Diego Lopez**
 
