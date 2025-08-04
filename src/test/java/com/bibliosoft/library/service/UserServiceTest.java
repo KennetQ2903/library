@@ -1,83 +1,112 @@
 package com.bibliosoft.library.service;
 
-import com.bibliosoft.library.dto.UserDTO;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
-class UserServiceTest {
+import com.bibliosoft.library.entity.UserEntity;
+import com.bibliosoft.library.repository.UserRepository;
 
+public class UserServiceTest {
+
+    @Mock
+    private UserRepository userRepository;
+
+    @InjectMocks
     private UserService userService;
 
-    @BeforeEach
-    void setUp() {
-        userService = new UserService();
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    void testAddUser() {
-        UserDTO user = new UserDTO();
-        user.setName("Juan Pérez");
+    public void testAddUser() {
+        UserEntity user = new UserEntity(null, "Juan Pérez", null);
+        UserEntity savedUser = new UserEntity(1L, "Juan Pérez", null);
 
-        UserDTO saved = userService.add(user);
+        when(userRepository.save(any(UserEntity.class))).thenReturn(savedUser);
 
-        assertNotNull(saved.getId());
-        assertEquals("Juan Pérez", saved.getName());
-        assertEquals(1, userService.getAll().size());
+        UserEntity result = userService.add(user);
+
+        assertNotNull(result);
+        assertEquals(Long.valueOf(1L), result.getId());
+        assertEquals("Juan Pérez", result.getName());
     }
 
     @Test
-    void testGetAllUsers() {
-        UserDTO user1 = new UserDTO();
-        user1.setName("Ana López");
+    public void testGetAllUsers() {
+        List<UserEntity> users = Arrays.asList(
+            new UserEntity(1L, "Ana López", null),
+            new UserEntity(2L, "Luis García", null)
+        );
 
-        UserDTO user2 = new UserDTO();
-        user2.setName("Luis García");
+        when(userRepository.findAll()).thenReturn(users);
 
-        userService.add(user1);
-        userService.add(user2);
+        List<UserEntity> result = userService.getAll();
 
-        List<UserDTO> allUsers = userService.getAll();
-        assertEquals(2, allUsers.size());
+        assertEquals(2, result.size());
+        assertEquals("Ana López", result.get(0).getName());
     }
 
     @Test
-    void testGetUserById() {
-        UserDTO user = new UserDTO();
-        user.setName("Carlos Martínez");
+    public void testGetUserById() {
+        UserEntity user = new UserEntity(1L, "Carlos Martínez", null);
 
-        UserDTO saved = userService.add(user);
-        Optional<UserDTO> found = userService.getById(saved.getId());
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
 
-        assertTrue(found.isPresent());
-        assertEquals("Carlos Martínez", found.get().getName());
+        Optional<UserEntity> result = userService.getById(1L);
+
+        assertTrue(result.isPresent());
+        assertEquals("Carlos Martínez", result.get().getName());
     }
 
     @Test
-    void testGetUserById_NotFound() {
-        Optional<UserDTO> result = userService.getById(999L);
+    public void testGetUserById_NotFound() {
+        when(userRepository.findById(999L)).thenReturn(Optional.empty());
+
+        Optional<UserEntity> result = userService.getById(999L);
+
         assertFalse(result.isPresent());
     }
 
     @Test
-    void testDeleteUser() {
-        UserDTO user = new UserDTO();
-        user.setName("María Fernández");
+    public void testDeleteUser() {
+        Long userId = 1L;
 
-        UserDTO saved = userService.add(user);
-        boolean deleted = userService.delete(saved.getId());
+        when(userRepository.existsById(userId)).thenReturn(true);
+        doNothing().when(userRepository).deleteById(userId);
 
-        assertTrue(deleted);
-        assertEquals(0, userService.getAll().size());
+        boolean result = userService.delete(userId);
+
+        assertTrue(result);
+        verify(userRepository).deleteById(userId);
     }
 
     @Test
-    void testDeleteUser_NotFound() {
+    public void testDeleteUser_NotFound() {
+        when(userRepository.existsById(12345L)).thenReturn(false);
+
         boolean result = userService.delete(12345L);
+
         assertFalse(result);
+        verify(userRepository, never()).deleteById(anyLong());
     }
 }
