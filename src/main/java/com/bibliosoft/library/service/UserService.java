@@ -1,66 +1,64 @@
 package com.bibliosoft.library.service;
 
-import com.bibliosoft.library.dto.UserDTO;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import com.bibliosoft.library.entity.UserEntity;
+import com.bibliosoft.library.repository.UserRepository;
 
 /**
- * Servicio que encapsula la lógica de negocio relacionada con usuarios.
- * Actualmente utiliza almacenamiento en memoria simulando una base de datos.
+ * Servicio que encapsula la lógica de negocio relacionada con usuarios,
+ * ahora usando JPA y H2 en lugar de almacenamiento en memoria.
  */
 @Service
 public class UserService {
 
-    /**
-     * Simula una base de datos en memoria de usuarios.
-     * Clave: ID del usuario, Valor: instancia de UserDTO.
-     */
-    private final Map<Long, UserDTO> userRepository = new HashMap<>();
-
-    /**
-     * Contador secuencial para la generación de IDs únicos.
-     */
-    private Long idSequence = 1L;
+    @Autowired
+    private UserRepository userRepository;
 
     /**
      * Devuelve la lista completa de usuarios registrados.
      *
-     * @return Lista de objetos UserDTO.
+     * @return Lista de usuarios.
      */
-    public List<UserDTO> getAll() {
-        return new ArrayList<>(userRepository.values());
+    public List<UserEntity> getAll() {
+        return userRepository.findAll();
     }
 
     /**
-     * Registra un nuevo usuario. Se genera automáticamente un ID único.
+     * Crea un nuevo usuario.
      *
-     * @param user Objeto UserDTO con la información del nuevo usuario (sin ID).
-     * @return UserDTO con ID asignado.
+     * @param user DTO del usuario a crear.
+     * @return Usuario creado.
      */
-    public UserDTO add(UserDTO user) {
-        user.setId(idSequence++);
-        userRepository.put(user.getId(), user);
-        return user;
+    public UserEntity add(UserEntity user) {
+        return userRepository.save(user);
     }
 
     /**
-     * Busca un usuario por su identificador único.
+     * Busca un usuario por su ID.
      *
-     * @param id ID del usuario a buscar.
-     * @return Optional que contiene el UserDTO si existe; vacío si no existe.
+     * @param id ID único del usuario.
+     * @return Usuario si existe; null si no.
      */
-    public Optional<UserDTO> getById(Long id) {
-        return Optional.ofNullable(userRepository.get(id));
+    public Optional<UserEntity> getById(Long id) {
+        return userRepository.findById(id);
     }
 
     /**
      * Elimina un usuario por su ID.
      *
      * @param id ID del usuario a eliminar.
-     * @return true si el usuario existía y fue eliminado; false si no existía.
+     * @return true si el usuario fue eliminado; false si no existía.
      */
     public boolean delete(Long id) {
-        return userRepository.remove(id) != null;
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 }

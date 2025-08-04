@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.bibliosoft.library.dto.AuthorDTO;
+import com.bibliosoft.library.entity.AuthorEntity;
 import com.bibliosoft.library.service.AuthorService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -50,7 +50,7 @@ public class AuthorController {
     @Operation(summary = "Obtiene todos los autores registrados.")
     @ApiResponse(responseCode = "200", description = "Lista obtenida correctamente.")
     @GetMapping
-    public ResponseEntity<List<AuthorDTO>> getAll() {
+    public ResponseEntity<List<AuthorEntity>> getAll() {
         return ResponseEntity.ok(authorService.getAll());
     }
 
@@ -66,8 +66,8 @@ public class AuthorController {
         @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos.")
     })
     @PostMapping
-    public ResponseEntity<AuthorDTO> add(@RequestBody @Valid AuthorDTO author) {
-        AuthorDTO saved = authorService.add(author);
+    public ResponseEntity<AuthorEntity> add(@RequestBody @Valid AuthorEntity author) {
+        AuthorEntity saved = authorService.add(author);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
@@ -83,8 +83,10 @@ public class AuthorController {
         @ApiResponse(responseCode = "404", description = "Autor no encontrado.")
     })
     @GetMapping("/{id}")
-    public AuthorDTO getById(@PathVariable @Min(1) Long id) {
-       return authorService.getById(id).orElseThrow(() ->
+    public ResponseEntity<AuthorEntity> getById(@PathVariable @Min(1) Long id) {
+        return authorService.getById(id)
+        .map(ResponseEntity::ok)
+        .orElseThrow(() ->
             new ResponseStatusException(HttpStatus.NOT_FOUND, "Autor no encontrado")
         );
     }
@@ -101,9 +103,11 @@ public class AuthorController {
     })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable @Min(1) Long id) {
+    public ResponseEntity<Void> delete(@PathVariable @Min(1) Long id) {
         boolean deleted = authorService.delete(id);
-        if (!deleted) {
+        if (deleted) {
+            return ResponseEntity.noContent().build(); // 204 No Content
+        } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No se pudo eliminar el autor");
         }
     }

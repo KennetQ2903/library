@@ -1,83 +1,112 @@
 package com.bibliosoft.library.service;
 
-import com.bibliosoft.library.dto.AuthorDTO;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
-class AuthorServiceTest {
+import com.bibliosoft.library.entity.AuthorEntity;
+import com.bibliosoft.library.repository.AuthorRepository;
 
+public class AuthorServiceTest {
+
+    @Mock
+    private AuthorRepository authorRepository;
+
+    @InjectMocks
     private AuthorService authorService;
 
-    @BeforeEach
-    void setUp() {
-        authorService = new AuthorService();
+    @Before
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    void testAddAuthor() {
-        AuthorDTO author = new AuthorDTO();
-        author.setName("Gabriel García Márquez");
+    public void testAddAuthor() {
+        AuthorEntity author = new AuthorEntity(null, "Gabriel García Márquez", null);
+        AuthorEntity savedAuthor = new AuthorEntity(1L, "Gabriel García Márquez", null);
 
-        AuthorDTO saved = authorService.add(author);
+        when(authorRepository.save(any(AuthorEntity.class))).thenReturn(savedAuthor);
 
-        assertNotNull(saved.getId());
-        assertEquals("Gabriel García Márquez", saved.getName());
-        assertEquals(1, authorService.getAll().size());
+        AuthorEntity result = authorService.add(author);
+
+        assertNotNull(result);
+        assertEquals(Long.valueOf(1), result.getId());
+        assertEquals("Gabriel García Márquez", result.getName());
     }
 
     @Test
-    void testGetAllAuthors() {
-        AuthorDTO author1 = new AuthorDTO();
-        author1.setName("Isabel Allende");
+    public void testGetAllAuthors() {
+        List<AuthorEntity> authors = Arrays.asList(
+            new AuthorEntity(1L, "Isabel Allende", null),
+            new AuthorEntity(2L, "Mario Vargas Llosa", null)
+        );
 
-        AuthorDTO author2 = new AuthorDTO();
-        author2.setName("Mario Vargas Llosa");
+        when(authorRepository.findAll()).thenReturn(authors);
 
-        authorService.add(author1);
-        authorService.add(author2);
+        List<AuthorEntity> result = authorService.getAll();
 
-        List<AuthorDTO> allAuthors = authorService.getAll();
-        assertEquals(2, allAuthors.size());
+        assertEquals(2, result.size());
+        assertEquals("Isabel Allende", result.get(0).getName());
     }
 
     @Test
-    void testGetAuthorById() {
-        AuthorDTO author = new AuthorDTO();
-        author.setName("Julio Cortázar");
+    public void testGetAuthorById() {
+        AuthorEntity author = new AuthorEntity(1L, "Julio Cortázar", null);
 
-        AuthorDTO saved = authorService.add(author);
-        Optional<AuthorDTO> found = authorService.getById(saved.getId());
+        when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
 
-        assertTrue(found.isPresent());
-        assertEquals("Julio Cortázar", found.get().getName());
+        Optional<AuthorEntity> result = authorService.getById(1L);
+
+        assertTrue(result.isPresent());
+        assertEquals("Julio Cortázar", result.get().getName());
     }
 
     @Test
-    void testGetAuthorById_NotFound() {
-        Optional<AuthorDTO> result = authorService.getById(99L);
+    public void testGetAuthorById_NotFound() {
+        when(authorRepository.findById(99L)).thenReturn(Optional.empty());
+
+        Optional<AuthorEntity> result = authorService.getById(99L);
+
         assertFalse(result.isPresent());
     }
 
     @Test
-    void testDeleteAuthor() {
-        AuthorDTO author = new AuthorDTO();
-        author.setName("Carlos Fuentes");
+    public void testDeleteAuthor() {
+        Long authorId = 1L;
 
-        AuthorDTO saved = authorService.add(author);
-        boolean deleted = authorService.delete(saved.getId());
+        when(authorRepository.existsById(authorId)).thenReturn(true);
+        doNothing().when(authorRepository).deleteById(authorId);
 
-        assertTrue(deleted);
-        assertEquals(0, authorService.getAll().size());
+        boolean result = authorService.delete(authorId);
+
+        assertTrue(result);
+        verify(authorRepository).deleteById(authorId);
     }
 
     @Test
-    void testDeleteAuthor_NotFound() {
+    public void testDeleteAuthor_NotFound() {
+        when(authorRepository.existsById(999L)).thenReturn(false);
+
         boolean result = authorService.delete(999L);
+
         assertFalse(result);
+        verify(authorRepository, never()).deleteById(anyLong());
     }
 }
