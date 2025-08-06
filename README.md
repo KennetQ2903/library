@@ -25,6 +25,13 @@ Incluye persistencia con H2, documentación con Swagger y empaquetado para Docke
 - Java JDK 17+
 - Maven o usar el wrapper (`./mvnw`)
 - Docker (opcional)
+- ENV file
+
+Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
+
+```bash
+JWT_SECRET_KEY=YOUR_SECRET_KEY
+```
 
 ---
 
@@ -98,6 +105,7 @@ Una vez corriendo, accede a:
 | Users   | `/api/users`   |
 | Books   | `/api/books`   |
 | Authors | `/api/authors` |
+| Auth    | `/api/auth`    |
 
 ---
 
