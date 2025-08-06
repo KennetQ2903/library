@@ -23,24 +23,17 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Controlador REST para gestionar operaciones sobre libros en el sistema.
  */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/books")
 public class BookController {
 
     private final BookService bookService;
-
-    /**
-     * Inyección de dependencias por constructor.
-     *
-     * @param bookService Servicio de lógica para libros.
-     */
-    public BookController(BookService bookService) {
-        this.bookService = bookService;
-    }
 
     /**
      * Obtiene todos los libros registrados en el sistema.

@@ -22,26 +22,18 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Controlador REST que expone operaciones CRUD para usuarios.
  * Punto de entrada: /api/users
  */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
-
-    /**
-     * Inyección de dependencias vía constructor.
-     *
-     * @param userService Servicio de lógica de negocio para usuarios.
-     */
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-
     /**
      * Obtiene todos los usuarios registrados.
      *
