@@ -22,25 +22,18 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Controlador REST que gestiona las operaciones CRUD relacionadas con autores.
  * Expone endpoints accesibles en /api/authors.
  */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/authors")
 public class AuthorController {
 
     private final AuthorService authorService;
-
-    /**
-     * Inyección de dependencias vía constructor.
-     *
-     * @param authorService Servicio de lógica de negocio para autores.
-     */
-    public AuthorController(AuthorService authorService) {
-        this.authorService = authorService;
-    }
 
     /**
      * Obtiene la lista completa de autores.
