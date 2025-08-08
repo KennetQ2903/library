@@ -1,5 +1,7 @@
 package com.bibliosoft.library.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -40,5 +42,6 @@ public class TokenEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
+    @JsonBackReference
     public AccountEntity account;
 }
