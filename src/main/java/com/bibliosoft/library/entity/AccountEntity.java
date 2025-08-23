@@ -2,6 +2,8 @@ package com.bibliosoft.library.entity;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -43,6 +45,7 @@ public class AccountEntity {
     private String password;
 
     @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
+    @JsonManagedReference
     @Schema(description = "Lista de tokens de la cuenta.")
     private List<TokenEntity> tokens;
 }
