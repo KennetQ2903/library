@@ -106,6 +106,7 @@ Una vez corriendo, accede a:
 | Books   | `/api/books`   |
 | Authors | `/api/authors` |
 | Auth    | `/api/auth`    |
+| Account    | `/api/account`    |
 
 ---
 
