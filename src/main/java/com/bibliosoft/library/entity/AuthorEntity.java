@@ -29,7 +29,7 @@ public class AuthorEntity {
     @Schema(description = "Identificador único del autor.")
     private Long id;
 
-    @Size(min = 3, max = 20)
+    @Size(min = 3, max = 50)
     @NotBlank
     @Schema(description = "Nombre del autor.")
     private String name;
