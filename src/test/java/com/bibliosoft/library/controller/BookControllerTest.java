@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -19,18 +20,31 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.bibliosoft.library.entity.AuthorEntity;
 import com.bibliosoft.library.entity.BookEntity;
+import com.bibliosoft.library.repository.AccountRepository;
+import com.bibliosoft.library.repository.TokenRepository;
 import com.bibliosoft.library.service.BookService;
+import com.bibliosoft.library.service.JwtService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(BookController.class)
-@Import(BookService.class)  // En lugar de @MockBean
+@Import(BookService.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class BookControllerTest {
 
-   @Autowired
+    @Autowired
     private MockMvc mockMvc;
 
     @MockBean
     private BookService bookService;
+
+    @MockBean
+    private JwtService jwtService;
+
+    @MockBean
+    private TokenRepository tokenRepository;
+
+    @MockBean
+    private AccountRepository accountRepository;
 
     @Test
     public void shouldReturnListOfBooks() throws Exception {
@@ -38,16 +52,15 @@ public class BookControllerTest {
         AuthorEntity author2 = new AuthorEntity(2L, "Author Two", null);
 
         List<BookEntity> books = Arrays.asList(
-            new BookEntity(1L, "Book One", author1, null, false),
-            new BookEntity(2L, "Book Two", author2, null, false)
-        );
+                new BookEntity(1L, "Book One", author1, null, false),
+                new BookEntity(2L, "Book Two", author2, null, false));
 
         Mockito.when(bookService.getAll()).thenReturn(books);
 
         mockMvc.perform(get("/api/books"))
-               .andExpect(status().isOk())
-               .andExpect(jsonPath("$.length()").value(2))
-               .andExpect(jsonPath("$[0].title").value("Book One"))
-               .andExpect(jsonPath("$[1].title").value("Book Two"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].title").value("Book One"))
+                .andExpect(jsonPath("$[1].title").value("Book Two"));
     }
 }
