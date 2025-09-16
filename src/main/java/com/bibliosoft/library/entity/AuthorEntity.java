@@ -2,6 +2,8 @@ package com.bibliosoft.library.entity;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -35,6 +37,7 @@ public class AuthorEntity {
     private String name;
 
     @OneToMany(mappedBy = "author")
+    @JsonManagedReference("author-books")
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @Schema(description = "Lista de libros escritos por el autor.")

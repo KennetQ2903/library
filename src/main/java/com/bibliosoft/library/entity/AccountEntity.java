@@ -39,7 +39,7 @@ public class AccountEntity {
     @Schema(description = "Username de la cuenta.")
     private String username;
 
-    @Size(min = 8, max = 20)
+    @Size(min = 8)
     @NotBlank
     @Schema(description = "Contraseña de la cuenta.")
     private String password;

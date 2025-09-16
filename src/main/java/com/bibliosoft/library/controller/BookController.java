@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.bibliosoft.library.entity.BookEntity;
+import com.bibliosoft.library.request.AddBookRequest;
 import com.bibliosoft.library.service.BookService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,11 +56,11 @@ public class BookController {
      */
     @Operation(summary = "Registra un nuevo libro.")
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Libro creado exitosamente."),
-        @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos.")
+            @ApiResponse(responseCode = "201", description = "Libro creado exitosamente."),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos.")
     })
     @PostMapping
-    public ResponseEntity<BookEntity> add(@RequestBody @Valid BookEntity book) {
+    public ResponseEntity<BookEntity> add(@RequestBody @Valid AddBookRequest book) {
         BookEntity saved = bookService.add(book);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
@@ -72,14 +73,14 @@ public class BookController {
      */
     @Operation(summary = "Obtiene un libro por su ID.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Libro encontrado."),
-        @ApiResponse(responseCode = "404", description = "Libro no encontrado.")
+            @ApiResponse(responseCode = "200", description = "Libro encontrado."),
+            @ApiResponse(responseCode = "404", description = "Libro no encontrado.")
     })
     @GetMapping("/{id}")
     public ResponseEntity<BookEntity> getById(@PathVariable @Min(1) Long id) {
         return bookService.getById(id)
-            .map(ResponseEntity::ok)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Libro no encontrado"));
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Libro no encontrado"));
     }
 
     /**
@@ -89,8 +90,8 @@ public class BookController {
      */
     @Operation(summary = "Elimina un libro por su ID.")
     @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "Libro eliminado exitosamente."),
-        @ApiResponse(responseCode = "404", description = "Libro no encontrado.")
+            @ApiResponse(responseCode = "204", description = "Libro eliminado exitosamente."),
+            @ApiResponse(responseCode = "404", description = "Libro no encontrado.")
     })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -112,15 +113,14 @@ public class BookController {
      */
     @Operation(summary = "Marca un libro como prestado por un usuario.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Libro prestado exitosamente."),
-        @ApiResponse(responseCode = "404", description = "Libro o usuario no encontrado."),
-        @ApiResponse(responseCode = "409", description = "El libro ya está prestado.")
+            @ApiResponse(responseCode = "200", description = "Libro prestado exitosamente."),
+            @ApiResponse(responseCode = "404", description = "Libro o usuario no encontrado."),
+            @ApiResponse(responseCode = "409", description = "El libro ya está prestado.")
     })
     @PostMapping("/{bookId}/borrow/{userId}")
     public ResponseEntity<BookEntity> borrowBook(
-        @PathVariable @Min(1) Long bookId,
-        @PathVariable @Min(1) Long userId
-    ) {
+            @PathVariable @Min(1) Long bookId,
+            @PathVariable @Min(1) Long userId) {
         try {
             BookEntity updatedBook = bookService.borrowBook(bookId, userId);
             return ResponseEntity.ok(updatedBook);

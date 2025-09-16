@@ -19,6 +19,7 @@ import com.bibliosoft.library.entity.UserEntity;
 import com.bibliosoft.library.repository.AuthorRepository;
 import com.bibliosoft.library.repository.BookRepository;
 import com.bibliosoft.library.repository.UserRepository;
+import com.bibliosoft.library.request.AddBookRequest;
 
 public class BookServiceTest {
     @Mock
@@ -46,13 +47,12 @@ public class BookServiceTest {
 
     @Test
     public void shouldAddBook() {
-        BookEntity bookToSave = new BookEntity(null, "Test Book", author, null, false);
         BookEntity savedBook = new BookEntity(1L, "Test Book", author, null, false);
 
         when(authorRepository.findById(1L)).thenReturn(Optional.of(author));
         when(bookRepository.save(any(BookEntity.class))).thenReturn(savedBook);
 
-        BookEntity result = bookService.add(bookToSave);
+        BookEntity result = bookService.add(new AddBookRequest("Test Book", 1L));
 
         assertNotNull(result);
         assertEquals("Test Book", result.getTitle());

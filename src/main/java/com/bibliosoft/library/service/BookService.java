@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 
 import com.bibliosoft.library.entity.BookEntity;
 import com.bibliosoft.library.entity.UserEntity;
+import com.bibliosoft.library.repository.AuthorRepository;
 import com.bibliosoft.library.repository.BookRepository;
 import com.bibliosoft.library.repository.UserRepository;
+import com.bibliosoft.library.request.AddBookRequest;
 
 /**
  * Servicio que gestiona las operaciones de negocio relacionadas con los libros,
@@ -24,6 +26,9 @@ public class BookService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private AuthorRepository authorRepository;
 
     /**
      * Retorna todos los libros disponibles en el sistema.
@@ -40,8 +45,13 @@ public class BookService {
      * @param book DTO del libro a crear.
      * @return Libro creado con ID asignado.
      */
-    public BookEntity add(BookEntity book) {
-       return bookRepository.save(book);
+    public BookEntity add(AddBookRequest book) {
+        BookEntity bookEntity = BookEntity.builder()
+                .title(book.title())
+                .author(authorRepository.findById(book
+                        .authorId()).orElseThrow())
+                .build();
+        return bookRepository.save(bookEntity);
     }
 
     /**
@@ -75,7 +85,7 @@ public class BookService {
      * @param userId ID del usuario que solicita el préstamo
      * @return Libro actualizado
      * @throws NoSuchElementException si el libro o el usuario no existen
-     * @throws IllegalStateException si el libro ya está prestado
+     * @throws IllegalStateException  si el libro ya está prestado
      */
     public BookEntity borrowBook(Long bookId, Long userId) {
         BookEntity book = bookRepository.findById(bookId)

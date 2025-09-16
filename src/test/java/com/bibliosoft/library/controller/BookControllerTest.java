@@ -24,6 +24,7 @@ import com.bibliosoft.library.entity.AuthorEntity;
 import com.bibliosoft.library.entity.BookEntity;
 import com.bibliosoft.library.repository.AccountRepository;
 import com.bibliosoft.library.repository.TokenRepository;
+import com.bibliosoft.library.request.AddBookRequest;
 import com.bibliosoft.library.service.BookService;
 import com.bibliosoft.library.service.JwtService;
 
@@ -69,14 +70,13 @@ public class BookControllerTest {
     @Test
     public void shouldAddNewBook() throws Exception {
         AuthorEntity author = new AuthorEntity(1L, "Author One", null);
-        BookEntity newBook = new BookEntity(null, "New Book", author, null, false);
         BookEntity savedBook = new BookEntity(3L, "New Book", author, null, false);
 
-        Mockito.when(bookService.add(Mockito.any(BookEntity.class))).thenReturn(savedBook);
+        Mockito.when(bookService.add(Mockito.any(AddBookRequest.class))).thenReturn(savedBook);
 
         mockMvc.perform(post("/api/books")
                 .contentType("application/json")
-                .content("{\"title\":\"New Book\",\"author\":{\"id\":1,\"name\":\"Author One\"}}"))
+                .content("{\"title\":\"New Book\",\"authorId\":1}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(3))
                 .andExpect(jsonPath("$.title").value("New Book"));
